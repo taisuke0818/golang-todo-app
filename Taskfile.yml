@@ -1,0 +1,39 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+    optional: true
+  go:
+    taskfile: "${TASKFILES_DIR}/Taskfile.go.yml"
+    optional: true
+  buf:
+    taskfile: "${TASKFILES_DIR}/Taskfile.buf.yml"
+    optional: true
+  ko:
+    taskfile: "${TASKFILES_DIR}/Taskfile.ko.yml"
+    optional: true
+  protoc:
+    taskfile: "${TASKFILES_DIR}/Taskfile.protoc.yml"
+    optional: true
+
+tasks:
+  test:
+    - task: go:test
+
+  lint:
+    - task: go:lint
+
+  # format:
+  #   cmds:
+  #     - { task: protoc:format, vars: { DIR: protobuf/ } }
+
+  init:
+    cmds:
+      - { task: go:init }
+      - { task: buf:init }
+      - { task: ko:init }
+      - { task: protoc:init }
+      - cp --no-clobber --verbose envrc.sample .envrc

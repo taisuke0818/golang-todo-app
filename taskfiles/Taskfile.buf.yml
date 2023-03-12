@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+vars:
+  # https://github.com/bufbuild/buf/releases
+  BUF_VERSION: "v1.15.1"
+
+tasks:
+  init:buf:
+    dir: .local/opt/buf
+    vars:
+      VERSION: "{{.BUF_VERSION}}"
+      OS: '{{ if eq OS "darwin" }}Darwin{{ else if eq OS "linux" }}Linux{{ end }}'
+      ARCH: '{{ if eq ARCH "amd64" }}x86_64{{ else }}{{ARCH}}{{ end }}'
+      ARCHIVE_URL: https://github.com/bufbuild/buf/releases/download/{{.VERSION}}/buf-{{.OS}}-{{.ARCH}}
+    cmds:
+      - mkdir -p bin
+      - |
+        curl -sS \
+          -o "bin/buf" \
+          -LO '{{.ARCHIVE_URL}}'
+        chmod +x "bin/buf"
+      - { task: _:mklink, vars: { TARGET: .local/opt/buf/bin/buf } }
+
+  init:
+    cmds:
+      - task: init:buf

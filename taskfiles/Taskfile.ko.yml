@@ -1,0 +1,35 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+vars:
+  # https://github.com/ko-build/ko/releases
+  KO_VERSION: "0.13.0"
+
+tasks:
+  init:ko:
+    dir: .local/opt/ko
+    vars:
+      VERSION: "{{.KO_VERSION}}"
+      OS: '{{ if eq OS "darwin" }}Darwin{{ else if eq OS "linux" }}Linux{{ end }}'
+      ARCH: '{{ if eq ARCH "amd64" }}x86_64{{ else }}{{ARCH}}{{ end }}'
+      ARCHIVE_URL: https://github.com/ko-build/ko/releases/download/v{{.VERSION}}/ko_{{.VERSION}}_{{.OS}}_{{.ARCH}}.tar.gz
+    cmds:
+      - mkdir -p bin src
+      - |
+        curl -sSf \
+          -o 'src/ko_{{.VERSION}}_{{.OS}}_{{.ARCH}}.tar.gz' \
+          -LO '{{.ARCHIVE_URL}}'
+      - |
+        tar -xzvf 'src/ko_{{.VERSION}}_{{.OS}}_{{.ARCH}}.tar.gz' \
+          -C bin
+        chmod +x "bin/ko"
+      - { task: _:mklink, vars: { TARGET: .local/opt/ko/bin/ko } }
+
+  init:
+    cmds:
+      - task: init:ko

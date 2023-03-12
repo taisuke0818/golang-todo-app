@@ -1,0 +1,37 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+tasks:
+  format:
+    vars:
+      CONFIG_FILE: "${TASKFILES_DIR}/assets/_clang-format"
+    dir: "{{.DIR}}"
+    preconditions:
+      - test -n '{{.DIR}}'
+    cmds:
+      - |
+        clang-format \
+          -style 'file:{{.CONFIG_FILE}}' \
+          -i \
+          $(find -name '*.proto')
+
+  init:clang-format:
+    cmds:
+      - task: init:clang-format:{{OS}}
+
+  init:clang-format:darwin:
+    cmds:
+      - brew install clang-format
+
+  init:clang-format:linux:
+    cmds:
+      - echo 'FIXME'
+
+  init:
+    cmds:
+      - task: init:clang-format

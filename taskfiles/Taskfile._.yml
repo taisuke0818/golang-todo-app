@@ -1,0 +1,23 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  mklink:
+    preconditions:
+      - test -n '{{.TARGET}}'
+    cmds:
+      - mkdir -p .local/bin/
+      - |
+        ln \
+          --force \
+          --symbolic \
+          --verbose \
+          --no-dereference \
+          --relative \
+          '{{.TARGET}}' \
+          '.local/bin/{{base .TARGET}}'
+
+  init:
+    cmds:
+      - echo 'nothing to do, skipped'
