@@ -9,15 +9,21 @@ includes:
   go:
     taskfile: "${TASKFILES_DIR}/Taskfile.go.yml"
     optional: true
+  mongo:
+    taskfile: "${TASKFILES_DIR}/Taskfile.mongo.yml"
+    optional: true
+  protoc:
+    taskfile: "${TASKFILES_DIR}/Taskfile.protoc.yml"
+    optional: true
   buf:
     taskfile: "${TASKFILES_DIR}/Taskfile.buf.yml"
     optional: true
   ko:
     taskfile: "${TASKFILES_DIR}/Taskfile.ko.yml"
     optional: true
-  protoc:
-    taskfile: "${TASKFILES_DIR}/Taskfile.protoc.yml"
-    optional: true
+
+vars:
+  TODO_VERSION: 'v{{now.Format "20060102"}}'
 
 tasks:
   test:
@@ -25,15 +31,50 @@ tasks:
 
   lint:
     - task: go:lint
+    - task: buf:lint
 
-  # format:
-  #   cmds:
-  #     - { task: protoc:format, vars: { DIR: protobuf/ } }
+  format:
+    cmds:
+      - { task: buf:format, vars: { DIR: "protobuf/" } }
+
+  start:
+    env:
+      TODO_IMAGE:
+        sh: VERSION='{{.TODO_VERSION}}' DIR='./cmd/todo/' task ko:build
+    cmds:
+      - docker-compose up --remove-orphans
+
+  down:
+    cmds:
+      - docker-compose down
+
+  mongo:start:
+    cmds:
+      - { task: mongo:start }
+
+  generate:
+    cmds:
+      - { task: buf:generate, vars: { DIR: "protobuf/" } }
+      - { task: buf:descriptor, vars: { DIR: "protobuf/" } }
+
+  publish:
+    cmds:
+      - {
+          task: ko:publish,
+          vars: { VERSION: "{{.TODO_VERSION}}", DIR: "./cmd/todo/" },
+        }
+
+  build:
+    cmds:
+      - {
+          task: ko:build,
+          vars: { VERSION: "{{.TODO_VERSION}}", DIR: "./cmd/todo/" },
+        }
 
   init:
     cmds:
       - { task: go:init }
-      - { task: buf:init }
       - { task: ko:init }
+      - { task: buf:init }
       - { task: protoc:init }
       - cp --no-clobber --verbose envrc.sample .envrc

@@ -11,6 +11,34 @@ vars:
   BUF_VERSION: "v1.15.1"
 
 tasks:
+  lint:
+    cmds:
+      - buf lint
+
+  format:
+    dir: "{{.DIR}}"
+    cmds:
+      - buf format -w -d
+    preconditions:
+      - test -n '{{.DIR}}'
+
+  generate:
+    cmds:
+      - buf mod update {{.DIR}}
+      - buf generate {{.DIR}}
+    preconditions:
+      - test -n '{{.DIR}}'
+
+  descriptor:
+    cmds:
+      - |
+        buf build '{{.DIR}}' \
+          --as-file-descriptor-set \
+          -o '{{.DIR}}/api_descriptor.pb'
+
+    preconditions:
+      - test -n '{{.DIR}}'
+
   init:buf:
     dir: .local/opt/buf
     vars:

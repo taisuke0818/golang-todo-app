@@ -29,7 +29,37 @@ tasks:
           -C bin
         chmod +x "bin/ko"
       - { task: _:mklink, vars: { TARGET: .local/opt/ko/bin/ko } }
+    preconditions:
+      - test -n '{{.KO_VERSION}}'
 
   init:
     cmds:
       - task: init:ko
+
+  publish:
+    vars:
+      VERSION: "{{.VERSION}}"
+      DIR: "{{.DIR}}"
+    cmds:
+      - |
+        time ko publish \
+          --base-import-paths \
+          --tags '{{.TODO_VERSION}}' \
+          --tag-only \
+          {{.DIR}}
+    preconditions:
+      - test -n '{{.DIR}}'
+
+  build:
+    vars:
+      VERSION: "{{.VERSION}}"
+      DIR: "{{.DIR}}"
+    cmds:
+      - |
+        ko build \
+          --base-import-paths \
+          --tags '{{.VERSION}}' \
+          --tag-only \
+          {{.DIR}}
+    preconditions:
+      - test -n '{{.DIR}}'

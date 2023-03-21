@@ -12,9 +12,9 @@ vars:
 tasks:
   lint:
     vars:
-      CONFIG_FILE: "./taskfiles/assets/_golangci.yml"
+      CONFIG_FILE: ${TASKFILES_DIR}/assets/_golangci.yml
     cmds:
-      - golangci-lint run --config '{{.CONFIG_FILE}}' ./...
+      - golangci-lint run --config "{{.CONFIG_FILE}}" ./...
 
   test:
     cmds:

@@ -1,2 +1,17 @@
 export PATH="$(pwd)/.local/bin:${PATH}"
-export TASKFILES_DIR="$(pwd)/taskfiles"
+export TASKFILES_DIR="$(pwd)/_taskfiles"
+
+# ko
+export KO_DOCKER_REPO=ko.local
+
+# mongo
+export MONGO_HOST_PORT=27018
+export MONGO_INITDB_ROOT_USERNAME=FIXME
+export MONGO_INITDB_ROOT_PASSWORD=FIXME
+export MONGO_INITDB_DATABASE=FIXME
+export MONGO_INITDB_COLLECTION=FIXME
+
+# todo api
+export PORT=8080
+export LOG_LEVEL="info" # choices: trace, debug, info, warn, error
+export MONGO_URI="mongodb://localhost:${MONGO_HOST_PORT}"

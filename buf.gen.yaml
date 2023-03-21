@@ -1,0 +1,16 @@
+version: v1
+plugins:
+  - plugin: validate
+    out: protobuf
+    opt:
+      - lang=go
+      - paths=source_relative
+  # https://github.com/grpc/grpc-go/releases
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: protobuf
+    opt: paths=source_relative
+  # https://github.com/protocolbuffers/protobuf-go/releases
+  - plugin: buf.build/protocolbuffers/go:v1.29.0
+    out: protobuf
+    opt:
+      - paths=source_relative
