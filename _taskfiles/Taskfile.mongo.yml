@@ -1,0 +1,36 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  start:
+    vars:
+      CONTAINER_NAME: '{{.CONTAINER_NAME | default "mongodb"}}'
+      MONGO_HOST_PORT: '{{.MONGO_HOST_PORT | default "27018"}}'
+      MONGO_INITDB_ROOT_USERNAME: "{{.MONGO_INITDB_ROOT_USERNAME}}"
+      MONGO_INITDB_ROOT_PASSWORD: "{{.MONGO_INITDB_ROOT_PASSWORD}}"
+      MONGO_INITDB_DATABASE: "{{.MONGO_INITDB_DATABASE}}"
+      MONGO_INITDB_COLLECTION: "{{.MONGO_INITDB_COLLECTION}}"
+      TZ: '{{.TZ | default "Asia/Tokyo"}}'
+    preconditions:
+      - test -n '{{.MONGO_INITDB_ROOT_USERNAME}}'
+      - test -n '{{.MONGO_INITDB_ROOT_PASSWORD}}'
+      - test -n '{{.MONGO_INITDB_DATABASE}}'
+      - test -n '{{.MONGO_INITDB_COLLECTION}}'
+    cmds:
+      - cmd: docker stop '{{.CONTAINER_NAME}}'
+        ignore_error: true
+      - |
+        docker run -d --rm --name '{{.CONTAINER_NAME}}' \
+          -p "{{.MONGO_HOST_PORT}}:27017" \
+          -v '{{.PWD}}/_mongodb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d' \
+          -e MONGO_INITDB_ROOT_USERNAME='{{.MONGO_INITDB_ROOT_USERNAME}}' \
+          -e MONGO_INITDB_ROOT_PASSWORD='{{.MONGO_INITDB_ROOT_PASSWORD}}' \
+          -e MONGO_INITDB_DATABASE='{{.MONGO_INITDB_DATABASE}}' \
+          -e MONGO_INITDB_COLLECTION='{{.MONGO_INITDB_COLLECTION}}' \
+          -e TZ='{{.TZ}}' \
+          mongo:latest
+
+  init:
+    cmds:
+      - echo 'nothing to do, skipped'

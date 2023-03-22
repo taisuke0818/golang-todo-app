@@ -1,0 +1,53 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+vars:
+  GOLANGCI_LINT_VERSION: "1.47.3"
+
+tasks:
+  lint:
+    vars:
+      CONFIG_FILE: ${TASKFILES_DIR}/assets/_golangci.yml
+    cmds:
+      - golangci-lint run --config "{{.CONFIG_FILE}}" ./...
+
+  test:
+    cmds:
+      - go test ./...
+
+  init:golangci-lint:
+    vars:
+      VERSION: "{{.GOLANGCI_LINT_VERSION}}"
+      ARCHIVE_URL: https://github.com/golangci/golangci-lint/releases/download/v{{.VERSION}}/golangci-lint-{{.VERSION}}-{{OS}}-amd64.tar.gz
+    dir: .local/opt/golangci-lint
+    cmds:
+      - mkdir -p bin src
+      - |
+        curl -sS \
+          -o 'src/golangci-lint-{{.VERSION}}-{{OS}}-amd64.tar.gz' \
+          -L '{{.ARCHIVE_URL}}'
+      - |
+        tar -xzvf 'src/golangci-lint-{{.VERSION}}-{{OS}}-amd64.tar.gz' \
+          -C bin \
+          --strip-components 1 \
+          golangci-lint-{{.VERSION}}-{{OS}}-amd64/golangci-lint
+      - {
+          task: _:mklink,
+          vars: { TARGET: .local/opt/golangci-lint/bin/golangci-lint },
+        }
+
+  init:
+    cmds:
+      - anyenv install --skip-existing goenv
+      - |
+        if [[ -z "$(which goenv)" ]]; then
+          exec "${SHELL}" -l
+        fi
+        goenv install --skip-existing
+        goenv rehash
+      - task: init:golangci-lint

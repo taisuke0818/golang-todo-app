@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+  todoapi:
+    image: ${TODO_IMAGE}
+    container_name: todoapi
+    restart: always
+    tty: true
+    environment:
+      PORT: 50051
+      LOG_LEVEL: ${LOG_LEVEL}
+      MONGO_URI: mongodb://mongodb:27017
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - ${PORT}:50051
+  mongodb:
+    # https://hub.docker.com/_/mongo/tags
+    image: mongo:6.0.5
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_COLLECTION: ${MONGO_INITDB_COLLECTION}
+      TZ: Asia/Tokyo
+    expose:
+      - ${MONGO_HOST_PORT}
+    ports:
+      - ${MONGO_HOST_PORT}:27017
+    volumes:
+      - ./_mongodb/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+  envoy:
+    # tags: https://github.com/envoyproxy/envoy/releases/tag/v1.25.2
+    image: envoyproxy/envoy:v1.25.2
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - "./_envoy:/etc/envoy"
+      - './protobuf/api_descriptor.pb:/etc/envoy/api_descriptor.pb'

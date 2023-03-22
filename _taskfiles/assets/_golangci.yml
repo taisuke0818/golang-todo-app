@@ -1,0 +1,31 @@
+---
+run:
+  timeout: 5m
+
+  skip-files:
+    - '\.pb(?:\.[^.]+)?\.go$'
+
+linters:
+  disable-all: true
+  enable:
+    - depguard
+    - errcheck
+    - errorlint
+    - gofmt
+    - goimports
+    - govet
+    - importas
+    - staticcheck
+
+linters-settings:
+  errcheck:
+    check-blank: true
+
+  gofmt:
+    simplify: false
+
+  depguard:
+    list-type: denylist
+    include-go-root: true
+    packages:
+      - log

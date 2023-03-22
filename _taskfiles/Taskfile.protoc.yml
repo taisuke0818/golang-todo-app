@@ -1,0 +1,31 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  _:
+    taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+vars:
+  # https://github.com/envoyproxy/protoc-gen-validate/releases
+  PROTOC_GEN_VALIDATE_VERSION: "0.9.1"
+
+tasks:
+  init:protoc-gen-validate:
+    env:
+      GOBIN: "{{.PWD}}/.local/bin/"
+    cmds:
+      - task: _:git-clone
+        vars:
+          URL: https://github.com/envoyproxy/protoc-gen-validate
+          DIR: .local/opt/protoc-gen-validate
+          REF: "v{{.PROTOC_GEN_VALIDATE_VERSION}}"
+      - |
+        # goを利用するときだけバイナリ生成
+        if [[ -r .go-version ]]; then
+          cd .local/opt/protoc-gen-validate && go install .
+        fi
+
+  init:
+    cmds:
+      - task: init:protoc-gen-validate

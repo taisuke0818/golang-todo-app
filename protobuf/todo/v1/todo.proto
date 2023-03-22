@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+package todo.v1;
+
+import "google/protobuf/empty.proto";
+import "validate/validate.proto";
+
+option go_package = '/todo/protobuf';
+
+service TodoService {
+  rpc CreateTodoTask(CreateTodoTaskRequest) returns (CreateTodoTaskResponse);
+  rpc ListTodoTasks(ListTodoTasksRequest) returns (ListTodoTasksResponse);
+  rpc GetTodoTask(GetTodoTaskRequest) returns (GetTodoTaskResponse);
+  rpc UpdateTodoTask(UpdateTodoTaskRequest) returns (UpdateTodoTaskResponse);
+  rpc DeleteTodoTask(DeleteTodoTaskRequest) returns (google.protobuf.Empty);
+}
+
+// 重要度
+enum Priority {
+  // 未指定
+  PRIORITY_UNSPECIFIED = 0;
+  // 高
+  PRIORITY_HIGH = 1;
+  // 中
+  PRIORITY_MEDIUM = 2;
+  // 低
+  PRIORITY_LOW = 3;
+}
+
+message TodoTask {
+  // タスクID
+  string todo_task_id = 1;
+
+  // タスク内容
+  string contents = 2;
+
+  // 重要度
+  Priority priority = 3;
+
+  // 完了チェック（On/Off）
+  bool completed = 4;
+
+  // 削除日時
+  //
+  // マイクロ秒単位のUNIX時間を保持する
+  int64 deleted_at = 5;
+
+  // 作成日時
+  //
+  // マイクロ秒単位のUNIX時間を保持する
+  int64 created_at = 6;
+
+  // 更新日時
+  //
+  // マイクロ秒単位のUNIX時間を保持する
+  int64 updated_at = 7;
+}
+
+message CreateTodoTaskRequest {
+  TodoTask todo_task = 1 [(validate.rules).message.required = true];
+}
+
+message CreateTodoTaskResponse {
+  TodoTask todo_task = 1;
+}
+
+message ListTodoTasksRequest {}
+
+message ListTodoTasksResponse {
+  int64 total = 1;
+
+  repeated TodoTask items = 2;
+}
+
+message GetTodoTaskRequest {
+  string todo_task_id = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+message GetTodoTaskResponse {
+  TodoTask todo_task = 1;
+}
+
+message UpdateTodoTaskRequest {
+  TodoTask todo_task = 1 [(validate.rules).message.required = true];
+}
+
+message UpdateTodoTaskResponse {
+  TodoTask todo_task = 1;
+}
+
+message DeleteTodoTaskRequest {
+  TodoTask todo_task = 1 [(validate.rules).message.required = true];
+}

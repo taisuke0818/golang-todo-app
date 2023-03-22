@@ -1,0 +1,53 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  mklink:
+    preconditions:
+      - test -n '{{.TARGET}}'
+    cmds:
+      - mkdir -p .local/bin/
+      - |
+        ln \
+          --force \
+          --symbolic \
+          --verbose \
+          --no-dereference \
+          --relative \
+          '{{.TARGET}}' \
+          '.local/bin/{{base .TARGET}}'
+
+  git-clone:
+    vars:
+      URL: "{{.URL}}"
+      DIR: "{{.DIR}}"
+      REF: '{{.REF | default "main"}}'
+    preconditions:
+      - test -n '{{.URL}}'
+      - test -n '{{.DIR}}'
+    cmds:
+      - { task: rmdir, vars: { DIR: "{{.DIR}}" } }
+      - |
+        git clone \
+          --branch "{{.REF}}" \
+          --single-branch \
+          --depth 1 \
+          --recurse-submodules \
+          --shallow-submodules \
+          "{{.URL}}" \
+          "{{.DIR}}"
+
+  rmdir:
+    preconditions:
+      - test -n '{{.DIR}}'
+      - test '{{.DIR}}' != '/'
+    cmds:
+      - |
+        if [[ -d '{{.DIR}}' ]]; then
+          rm -rf '{{.DIR}}'
+        fi
+
+  init:
+    cmds:
+      - echo 'nothing to do, skipped'
