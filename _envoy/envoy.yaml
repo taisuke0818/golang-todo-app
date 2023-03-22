@@ -72,5 +72,6 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      # address: host.docker.internal # ホスト側IPアドレスでプロキシ
+                      address: todoapi # コンテナ間DNSでプロキシ
                       port_value: 50051

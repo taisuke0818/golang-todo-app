@@ -35,6 +35,7 @@ func (s *Service) ListTodoTasks(ctx context.Context, req *todopb.ListTodoTasksRe
 	}
 	out := new(todopb.ListTodoTasksResponse)
 	out.Items = todos
+	out.Total = int64(len(todos))
 	return out, nil
 }
 

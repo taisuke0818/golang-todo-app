@@ -1,0 +1,26 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+    _:
+        taskfile: "${TASKFILES_DIR}/Taskfile._.yml"
+
+# https://github.com/spf13/cobra-cli/releases
+vars:
+    COBRA_VERSION: "v1.3.0"
+
+tasks:
+    init:cobra-cli:
+        env:
+            GOBIN: "{{.PWD}}/.local/opt/cobra/bin"
+        cmds:
+            - go install github.com/spf13/cobra-cli@{{.COBRA_VERSION}}
+            - {
+                  task: _:mklink,
+                  vars: { TARGET: .local/opt/cobra/bin/cobra-cli },
+              }
+
+    init:
+        cmds:
+            - task: init:cobra-cli

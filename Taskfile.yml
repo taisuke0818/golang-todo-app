@@ -21,6 +21,9 @@ includes:
   ko:
     taskfile: "${TASKFILES_DIR}/Taskfile.ko.yml"
     optional: true
+  cobra:
+    taskfile: "${TASKFILES_DIR}/Taskfile.cobra.yml"
+    optional: true
 
 vars:
   TODO_VERSION: 'v{{now.Format "20060102"}}'
@@ -77,4 +80,5 @@ tasks:
       - { task: ko:init }
       - { task: buf:init }
       - { task: protoc:init }
+      - { task: cobra:init }
       - cp --no-clobber --verbose envrc.sample .envrc
